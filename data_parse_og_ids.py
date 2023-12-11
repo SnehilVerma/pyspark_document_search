@@ -23,14 +23,12 @@ def remove_punctuation_and_quotes(text):
     # Use translate to remove punctuation and quotes
     text_without_punctuations = text.translate(translator)
     text_without_numbers = re.sub(r'\d+', '', text_without_punctuations)
-
     return text_without_numbers
 
 # Step 1: Data Ingestion
 dicti = json.load(open("ds_dump.json"))
 # Converting into list of tuple
 data = [(doc_id, remove_punctuation_and_quotes(text)) for doc_id, text in dicti.items()]
-
 
 schema = ["document_id", "text"]
 df = spark.createDataFrame(data, schema)
@@ -65,7 +63,6 @@ inverted_index = exploded_df.groupBy("token").agg(F.collect_list("document_id").
 inverted_index.show(truncate=False)
 
 # Save the inverted index to a desired location (e.g., Parquet format)
-# inverted_index.write.parquet("s3://your-s3-bucket/inverted_index.parquet")
 inverted_index.write.mode("overwrite").parquet("generated_index.parquet")
 
 # Stop the Spark session

@@ -11,18 +11,12 @@ def measure_latency(phrase,spark,index=None):
     latency = time.time() - start_time
     return latency
 
-
-
 def plot_latency_vs_length(phrase, max_length,spark):
-    
-
     lengths = list(range(1, max_length + 1))
     latencies = []
 
     for length in lengths:
         truncated_phrase = " ".join(phrase.split()[:length])
-        print(truncated_phrase)
-        # print("-----------")
         latency = measure_latency(truncated_phrase,spark)
         latencies.append(latency)
 
@@ -32,9 +26,6 @@ def plot_latency_vs_length(phrase, max_length,spark):
     plt.ylabel('Latency (seconds)')
     plt.title('Latency vs. Phrase Length')
     plt.show()
-
-    
-
 
 def plot_index_size_vs_latency(spark):
     phrase = "March is the third month of the year in the Gregorian calendar, coming between February and April."
@@ -76,9 +67,6 @@ def plot_multiple_client_vs_latency(spark, n):
     plt.title('Latency vs. Number of concurrent queries')
     plt.show()
 
-
-
-# phrase = "March is the third month of the year in the Gregorian calendar, coming between February and April."
 phrase = "It is different in some ways from other types of English, such as British English. Most types of American English came from local dialects in England.\n\nUse \nMany people today know about American English even if they live in a country where another type of English is spoken."
 max_length = len(phrase.split())
 # Create a Spark session

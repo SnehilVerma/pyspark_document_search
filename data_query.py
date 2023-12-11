@@ -9,9 +9,6 @@ from pyspark.ml.feature import Tokenizer, StopWordsRemover
 from functools import reduce
 
 
-
-
-
 def remove_punctuation_and_quotes(text):
     # Define a translation table
     translator = str.maketrans("", "", string.punctuation + "'\"")
@@ -69,17 +66,7 @@ def search_query(phrase,spark,index=None):
     if index is None:
         inverted_index = spark.read.parquet("generated_index.parquet")
     else:
-        print(index)
-        print(type(index))
         inverted_index = spark.read.parquet(index)
-
-    # Tokenize, stem, and filter the input phrase
-    # tokens = remove_punctuation_and_quotes(phrase).split()
-    # stemmed_tokens = [stemmer.stem(token) for token in tokens]
-    # print(stemmed_tokens)
-    
-    # # Create a DataFrame with the input phrase tokens
-    # query_df = spark.createDataFrame([(0, stemmed_tokens)], ["doc_id", "stemmed_tokens"])
 
     
     # Explode the tokens to create a row for each token in the query
