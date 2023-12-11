@@ -45,20 +45,21 @@ def plot_index_size_vs_latency(spark):
     plt.title('Latency vs. Index Size')
     plt.show()
 
-def plot_multiple_client_vs_latency(spark, n):
+def plot_multiple_client_vs_latency(spark, max_workers):
     import concurrent.futures
     phrase = "March is the third month of the year in the Gregorian calendar, coming between February and April."
     latencies = {}
-
-    for max_workers in range(1, n+1):
+        
+    # varying the clients from 10 to 100, with a step size of 10.
+    for num_client in range(10, 100 ,10):   
+        start_time = time.time()
         with concurrent.futures.ThreadPoolExecutor(max_workers = max_workers) as executor:
-            start_time = time.time()
-            futures = [executor.submit(measure_latency, phrase, spark) for _ in range(max_workers)]
+            # futures = [executor.submit(measure_latency, phrase, spark) for _ in range(max_workers)]
+            futures = [executor.submit(measure_latency, phrase, spark) for client_id in range(1, num_client + 1)]
             # Wait for all tasks to complete
             concurrent.futures.wait(futures)
-            latency = time.time() - start_time
-            latencies[max_workers]=latency  
-
+        latency = time.time() - start_time
+        latencies[num_client]=latency  
 
     # Plot the results
     plt.plot(latencies.keys(), latencies.values(), marker='o')
@@ -69,17 +70,14 @@ def plot_multiple_client_vs_latency(spark, n):
 
 phrase = "It is different in some ways from other types of English, such as British English. Most types of American English came from local dialects in England.\n\nUse \nMany people today know about American English even if they live in a country where another type of English is spoken."
 max_length = len(phrase.split())
-# Create a Spark session
-spark = SparkSession.builder.appName("Document Search").getOrCreate()
 
-plot_latency_vs_length(phrase, max_length,spark)
 
-plot_index_size_vs_latency(spark)
-
-num_threads_max = 15
-plot_multiple_client_vs_latency(spark,num_threads_max)
-
-spark.stop()
-
+if __name__=="__main__":
+    # Create a Spark session
+    spark = SparkSession.builder.appName("Document Search").getOrCreate()    
+    plot_latency_vs_length(phrase, max_length,spark)
+    plot_index_size_vs_latency(spark)
+    plot_multiple_client_vs_latency(spark,max_workers=4)
+    spark.stop()
 
 

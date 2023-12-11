@@ -10,12 +10,24 @@ nltk.download("stopwords")
 from pyspark.ml.linalg import Vectors, VectorUDT
 from pyspark.sql import functions as F
 import json,string
+from datasets import load_dataset
 
 # Download NLTK resources (run this once)
 
 # Create a Spark session
 spark = SparkSession.builder.appName("TextProcessingExample").getOrCreate()
+dataset = load_dataset("wikipedia", "20220301.simple")
 
+def read_docs(doc_size):
+    dicti = {}
+    document_count = doc_size
+    count = 0
+    for row in dataset["train"]:
+        dicti[row["id"]]=row["text"]
+        count += 1
+        if count==document_count:
+            break
+    return dicti
 
 def remove_punctuation_and_quotes(text):
     # Define a translation table
@@ -26,7 +38,7 @@ def remove_punctuation_and_quotes(text):
     return text_without_numbers
 
 # Step 1: Data Ingestion
-dicti = json.load(open("ds_dump.json"))
+dicti = read_docs(doc_size)
 # Converting into list of tuple
 data = [(doc_id, remove_punctuation_and_quotes(text)) for doc_id, text in dicti.items()]
 

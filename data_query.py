@@ -7,7 +7,10 @@ from nltk.stem import SnowballStemmer
 import string
 from pyspark.ml.feature import Tokenizer, StopWordsRemover
 from functools import reduce
+import os
 
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 def remove_punctuation_and_quotes(text):
     # Define a translation table
@@ -63,10 +66,15 @@ def search_query(phrase,spark,index=None):
 
 
     # Load the inverted index
+    default_index  = "generated_index_1100.parquet"
     if index is None:
-        inverted_index = spark.read.parquet("generated_index.parquet")
+        print("Searching default index")
+        index_path = os.path.join(current_directory, default_index)
+        inverted_index = spark.read.parquet(index_path)
     else:
-        inverted_index = spark.read.parquet(index)
+        print(f"Search { index } index")
+        index_path = os.path.join(current_directory, index)
+        inverted_index = spark.read.parquet(index_path)
 
     
     # Explode the tokens to create a row for each token in the query
@@ -75,14 +83,17 @@ def search_query(phrase,spark,index=None):
 
     # Join the query tokens with the inverted index on the token column
     joined_df = exploded_query_df.join(inverted_index, "token")
-    # joined_df.show()
 
     doc_result = intersect(joined_df)  
+    print("Document ids matching the search phrase")
+    print()
     print(doc_result)
 
 if __name__ == "__main__":
     # Example search query
-    search_query("Common goals of policy")
+    spark = SparkSession.builder.appName("Document Search").getOrCreate()
+    search_query("Common goals of policy",spark=spark)
+    spark.stop()
     # search_query("teacher of God's and humans")
 
 # Stop the Spark session
