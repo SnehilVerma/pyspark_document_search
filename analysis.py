@@ -2,8 +2,9 @@ import time
 from data_query import search_query
 import matplotlib.pyplot as plt
 from pyspark.sql import SparkSession
-import json
+import json,os
 
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 def measure_latency(phrase,spark,index=None):
     start_time = time.time()
@@ -29,7 +30,8 @@ def plot_latency_vs_length(phrase, max_length,spark):
 
 def plot_index_size_vs_latency(spark):
     phrase = "March is the third month of the year in the Gregorian calendar, coming between February and April."
-    dicti = json.load(open("index_mapping.json"))
+    index_mapping_path = os.path.join(current_directory, "index_mapping.json")
+    dicti = json.load(open(index_mapping_path))
     latencies = {}
     for k,v in dicti.items():
         print(f"measuring for {k} index size")
@@ -75,8 +77,14 @@ max_length = len(phrase.split())
 if __name__=="__main__":
     # Create a Spark session
     spark = SparkSession.builder.appName("Document Search").getOrCreate()    
+    # Analysis 1 : Measure latency against search phrase length
     plot_latency_vs_length(phrase, max_length,spark)
+
+    # Analysis 2 : Measure latency against index size
     plot_index_size_vs_latency(spark)
+
+    # Analysis 3 : Measure latency against increasing number of clients.
+    # For this we have added multithreading support.
     plot_multiple_client_vs_latency(spark,max_workers=4)
     spark.stop()
 

@@ -92,7 +92,8 @@ def search_query(phrase,spark,index=None):
 if __name__ == "__main__":
     # Example search query
     spark = SparkSession.builder.appName("Document Search").getOrCreate()
-    search_query("Common goals of policy",spark=spark)
+    default_phrase = "Common goals of policy"
+    search_query(default_phrase,spark=spark)
     spark.stop()
     # search_query("teacher of God's and humans")
 

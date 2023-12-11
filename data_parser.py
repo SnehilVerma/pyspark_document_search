@@ -47,7 +47,6 @@ def generated_index(doc_size,spark):
         return text_without_numbers
 
     # Step 1: Data Ingestion
-    # dicti = json.load(open("ds_dump.json"))
 
     dicti = read_docs(doc_size)
     # Converting into list of tuple
